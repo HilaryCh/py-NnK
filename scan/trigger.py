@@ -648,8 +648,8 @@ def artificial_stream(npts=1000., noise=1., P=[10., 15., 3.**.5], S=[17., 15., 3
 	Fs = npts/10.
 	Fnl = npts/30.
 	npts_c = npts+ Fnl
-	Pspot = range(npts//3,npts//2)
-	Sspot = range(npts//2,npts*2//3)
+	Pspot = range(int(npts//3), int(npts//2))
+	Sspot = range(int(npts//2), int((npts*2)//3))
 
 	stats3_z = Stats({'network':"Test", 'station':"P", 'location':"", 'channel':"Z", 'npts':npts, 'delta':1/Fs})
 	stats3_e = Stats({'network':"Test", 'station':"P", 'location':"", 'channel':"E", 'npts':npts, 'delta':1/Fs})
@@ -664,24 +664,24 @@ def artificial_stream(npts=1000., noise=1., P=[10., 15., 3.**.5], S=[17., 15., 3
 	stats0_e = Stats({'network':"Test", 'station':"Ns", 'location':"", 'channel':"E", 'npts':npts, 'delta':1/Fs})
 	stats0_n = Stats({'network':"Test", 'station':"Ns", 'location':"", 'channel':"N", 'npts':npts, 'delta':1/Fs})
 
-	noise_signal = np.asarray([ np.random.random_integers(-np.pi*1000, np.pi*1000, npts)/1000. ,
-		np.random.random_integers(-np.pi*1000, np.pi*1000, npts)/1000. ,
-		np.random.random_integers(-noise*500, noise*500, npts)/1000. ] )
+	noise_signal = np.asarray([ np.random.randint(-np.pi*1000, np.pi*1000, int(npts))/1000. ,
+		np.random.randint(-np.pi*1000, np.pi*1000, int(npts))/1000. ,
+		np.random.randint(-noise*500, noise*500, int(npts))/1000. ] )
 
 	noise_signal = np.asarray(spherical_to_cartesian(noise_signal))
 
 	# change the noise pol polarization to isotropic to vertical (P) and horizontal (S)
 	pola = np.copy(noise_signal)
 	## onde P
-	common = np.random.random_integers(-50., 50., len(Pspot)+2)/100.
+	common = np.random.randint(-50., 50., len(Pspot)+2)/100.
 
-	p_signal = np.asarray([ np.random.random_integers(-np.pi*1000, np.pi*1000, len(Pspot))/1000. ,
-		np.random.random_integers(np.pi*1000/1.3, np.pi*1000/0.7, len(Pspot))/1000. ,
-		np.random.random_integers(-noise*500, noise*500, len(Pspot))/1000. ] )
+	p_signal = np.asarray([ np.random.randint(-np.pi*1000, np.pi*1000, len(Pspot))/1000. ,
+		np.random.randint(np.pi*1000/1.3, np.pi*1000/0.7, len(Pspot))/1000. ,
+		np.random.randint(-noise*500, noise*500, len(Pspot))/1000. ] )
 	p_signal = np.asarray(spherical_to_cartesian(p_signal))
-	s_signal = np.asarray([ np.random.random_integers(-np.pi*1000, np.pi*1000, len(Sspot))/1000. ,
-		np.random.random_integers(np.pi*1000/2.3, np.pi*1000/1.7, len(Sspot))/1000. ,
-		np.random.random_integers(-noise*500, noise*500, len(Sspot))/1000. ] )
+	s_signal = np.asarray([ np.random.randint(-np.pi*1000, np.pi*1000, len(Sspot))/1000. ,
+		np.random.randint(np.pi*1000/2.3, np.pi*1000/1.7, len(Sspot))/1000. ,
+		np.random.randint(-noise*500, noise*500, len(Sspot))/1000. ] )
 	s_signal = np.asarray(spherical_to_cartesian(s_signal))
 
 	pola[0][Pspot] += p_signal[2]* P[0] * (npts/6 - np.arange(len(Pspot)))/(npts/6.)
