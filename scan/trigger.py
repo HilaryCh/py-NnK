@@ -421,7 +421,8 @@ def correlationcoef(a, b, scales=None, maxscale=None):
 	return cc #**(1./nscale)
 
 
-def stream_processor_plot(stream, cf, cfcolor = 'm', ax = None, label = None, shift = 0, f=None, rescale=None):
+def stream_processor_plot(stream, cf, cfcolor = 'm', ax = None, label = None, shift = 0, f=None, rescale=None, 
+					size=(8,5),linewidth=1.5,labelsize=18):
 	"""
 	Plots the body-wave characteristic functions resulting of
 	`~trigger.Ratio.output` and `~trigger.Correlate.output` classes.
@@ -447,6 +448,7 @@ def stream_processor_plot(stream, cf, cfcolor = 'm', ax = None, label = None, sh
 		- f: flag to deactivate data plotting (any value but None).
 		- rescale: flag to deactivate the normalization of
 			characteristic functions (any value but None).
+		- size: Output figure size
 	_______
 	:rtype:
 		- matplotlib:class:`~matplotlib.axes.Axes`
@@ -458,15 +460,19 @@ def stream_processor_plot(stream, cf, cfcolor = 'm', ax = None, label = None, sh
 	.. rubric:: Example
 
 		>>> import trigger
-		>>> stlt = trigger.ShortLongTerms(trigger.artificial_stream(npts=5000))
-		>>> ax,shift=trigger.stream_processor_plot(stlt.data, stlt.ratio.output(), cfcolor='r', label=r'$^M\bar{ST}/\bar{LT}$')
-		>>> trigger.stream_processor_plot(stlt.data, stlt.correlate.output(), ax=ax, cfcolor='g', label=r'$^M\bar{ST}\star\bar{LT}$', f="nodata")
+		>>> data = trigger.artificial_stream(npts=5000)
+		>>> data_preprocessed = (trigger.ShortLongTerms(data, preprocessor = 'averageabs')).output()
+		>>> cf_Ratio = trigger.Ratio(data_preprocessed, data, multiplexor = "shortlongterms", preprocessor = 'averageabs')
+		>>> cf_Correlate = trigger.Correlate(data_preprocessed, data, multiplexor = "shortlongterms", preprocessor = 'averageabs')
+
+		>>> ax,shift=trigger.stream_processor_plot(cf_Ratio.data, cf_Ratio.output(), cfcolor='r', label=r'$^M\bar{ST}/\bar{LT}$',size=(8,5))
+		>>> trigger.stream_processor_plot(cf_Correlate.data, cf_Correlate.output(), ax=ax, cfcolor='g', label=r'$^M\bar{ST}\star\bar{LT}$', f="nodata")
 		>>> ax.legend()
 
 	"""
 
 	if ax is None :
-		ax = (plt.figure( figsize=(8, 5) )).gca()
+		ax = (plt.figure( figsize=size )).gca()
 		(ax.get_figure()).tight_layout()
 
 
@@ -504,22 +510,23 @@ def stream_processor_plot(stream, cf, cfcolor = 'm', ax = None, label = None, sh
 		cf[t][-200:]=0.0
 		if f is None :
 			d = -1*abs(trace.data.copy())
-			ax.plot(time, shift+t-0.25+trace.data/(2.*np.max(np.abs(trace.data))), color, zorder=1)
+			ax.plot(time, shift+t-0.25+trace.data/(2.*np.max(np.abs(trace.data))), color, zorder=1,linewidth=linewidth)
 		if rescale is None :
-			ax.plot(time, shift+t+0.+ ((cf[t][:npts] - np.nanmin(np.abs(cf[t][:npts])) )/(2.*(np.nanmax(np.abs(cf[t][:npts])) - np.nanmin(np.abs(cf[t][:npts])))))**1., cfcolor, label=label, zorder=2)
+			ax.plot(time, shift+t+0.+ ((cf[t][:npts] - np.nanmin(np.abs(cf[t][:npts])) )/(2.*(np.nanmax(np.abs(cf[t][:npts])) - np.nanmin(np.abs(cf[t][:npts])))))**1., cfcolor, label=label, zorder=2,linewidth=linewidth)
 		else :
-			ax.plot(time, shift+t+0.+cf[t][:npts], cfcolor, label=label, zorder=2)
+			ax.plot(time, shift+t+0.+cf[t][:npts], cfcolor, label=label, zorder=2,linewidth=linewidth)
 
 		if not label is None :
-			ax.legend()
+			ax.legend(fontsize=labelsize)
 
 		label = None
 
 	ax.set_yticks(np.arange(0, shift+tmax, 1.0))
 	ax.set_yticklabels(labels)
 	#ax.text(0, shift-.25, anots[0] , verticalalignment='bottom', horizontalalignment='left', color=cfcolor)
-	ax.set_xlabel('Time (s)')
-	ax.set_ylabel('Channel')
+	ax.set_xlabel('Time (s)',fontsize= labelsize+2)
+	ax.set_ylabel('Channel',fontsize= labelsize+2)
+	ax.tick_params(axis= 'both', labelsize= labelsize)
 	ax.axis('tight')
 	# plt.ylim( 10.5, 13.5)
 	plt.tight_layout()
